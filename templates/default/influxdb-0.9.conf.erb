@@ -1,0 +1,92 @@
+# Welcome to the InfluxDB configuration file.
+
+# If hostname (on the OS) doesn't return a name that can be resolved by the other
+# systems in the cluster, you'll have to set the hostname to an IP or something
+# that can be resolved here.
+# hostname = ""
+
+bind-address = "0.0.0.0"
+
+# Once every 24 hours InfluxDB will report anonymous data to m.influxdb.com
+# The data includes raft name (random 8 bytes), os, arch and version
+# We don't track ip addresses of servers reporting. This is only used
+# to track the number of instances running and the versions which
+# is very helpful for us.
+# Change this option to true to disable reporting.
+reporting-disabled = false
+
+
+[authentication]
+  enabled = <%= @config[:authentication][:enabled] %>
+
+[admin]
+  enabled = <%= @config[:admin][:enabled] %>
+  port    = <%= @config[:admin][:port] %>              # binding is disabled if the port isn't set
+
+[api]
+  port     = <%= @config[:api][:port] %> # binding is disabled if the port isn't set
+  <% if @config[:api][:ssl][:enabled] %>
+  ssl-port = <%= @config[:api][:ssl][:port] %>    # Ssl support is enabled if you set a port and cert
+  ssl-cert = "<%= @config[:api][:ssl][:cert_path] %>"# /path/to/cert.pem
+  <% end %>
+
+
+[[graphite]]
+  enabled = <%= @config[:graphite][:enabled] %>
+  # address = "0.0.0.0" # If not set, is actually set to bind-address.
+  port = <%= @config[:graphite][:port] %>
+  # name-position = "last"
+  # name-separator = "-"
+  # database = ""  # store graphite data in this database
+
+[collectd]
+  enabled = <%= @config[:collectd][:enabled] %>
+  # address = "0.0.0.0" # If not set, is actually set to bind-address.
+  port = <%= @config[:collectd][:port] %>
+  # database = ""
+  # types.db can be found in a collectd installation or on github:
+  # https://github.com/collectd/collectd/blob/master/src/types.db
+  # typesdb = "/usr/share/collectd/types.db" # The path to the collectd types.db file
+
+[udp]
+  enabled = <%= @config[:udp][:enabled] %>
+  port = <%= @config[:udp][:port] %>
+  #bind-address = "0.0.0.0"
+
+  # Broker configuration. Brokers are nodes which participate in distributed
+  # # consensus.
+[broker]
+  # Where the Raft logs are stored. The user running InfluxDB will need read/write access.
+  dir  = "/tmp/influxdb/development/raft"
+  port = 8086
+
+[data]
+  dir = "<%= @config[:data][:path] %>"
+  port = <%= @config[:data][:port] %>
+
+  # Auto-create a retention policy when a database is created. Defaults to true.
+  retention-auto-create = true
+
+  # Control whether retention policies are enforced and how long the system waits between
+  # enforcing those policies.
+  retention-check-enabled = true
+  retention-check-period = "10m"
+
+[cluster]
+  # Location for cluster state storage. For storing state persistently across restarts.
+  dir = "/tmp/influxdb/development/state"
+
+[logging]
+  file   = "/var/log/influxdb/influxd.log" # Leave blank to redirect logs to stderr.
+  write-tracing = false # If true, enables detailed logging of the write system.
+  raft-tracing = false # If true, enables detailed logging of Raft consensus.
+
+# InfluxDB can store statistics about itself. This is useful for monitoring purposes.
+# # This feature is disabled by default, but if enabled, these statistics can be queried
+# # as any other data.
+# [statistics]
+#   enabled = false
+#   database = "_internal"         # The database to which the data is written.
+#   retention-policy = "default"   # The retention policy within the database.
+#   write-interval = "1m"          # Period between writing the data.
+
